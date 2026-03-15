@@ -1,0 +1,48 @@
+version: 0.2
+
+# ---------------------------------------------------------------------------
+# buildspec-build.yml
+# Executed by: currency-converter-app-build (CodeBuild)
+# Stage: BuildAndTest (second stage of currency-converter-app-pipeline)
+#
+# Compiles the Spring Boot app and runs unit tests.
+# Pipeline stops here if tests fail — Docker image is never built from
+# broken code.
+#
+# Output artifact contains the full source + compiled jar, passed to
+# the DockerAndPush stage.
+# ---------------------------------------------------------------------------
+
+phases:
+
+  install:
+    runtime-versions:
+      java: corretto17
+
+  pre_build:
+    commands:
+      - echo "Java version:"
+      - java -version
+      - echo "Maven version:"
+      - mvn -version
+
+  build:
+    commands:
+      - echo "Running tests..."
+      - mvn test
+      - echo "Packaging application..."
+      - mvn package -DskipTests
+      - echo "Build complete."
+
+  post_build:
+    commands:
+      - echo "JAR contents:"
+      - ls -lh target/*.jar
+      - find src/main/resources -type f
+      - jar tf target/currency-converter-1.0.0.jar | grep static
+      - jar tf target/currency-converter-1.0.0.jar | grep -i static || echo "STATIC NOT FOUND IN JAR"
+
+artifacts:
+  files:
+    - "**/*"
+  name: AppBuildArtifact

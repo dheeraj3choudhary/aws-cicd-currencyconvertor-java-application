@@ -1,0 +1,70 @@
+version: 0.2
+
+# ---------------------------------------------------------------------------
+# buildspec-docker.yml
+# Executed by: currency-converter-app-docker (CodeBuild)
+# Stage: DockerAndPush (third stage of currency-converter-app-pipeline)
+#
+# 1. Authenticates with ECR
+# 2. Builds Docker image with git commit SHA as tag
+# 3. Pushes image to ECR
+# 4. Generates Dockerrun.aws.json pointing to the new image
+#
+# The Dockerrun.aws.json is the deployment artifact consumed by the
+# Beanstalk deploy stage — it tells EB which ECR image to pull and run.
+# ---------------------------------------------------------------------------
+
+env:
+  variables:
+    AWS_DEFAULT_REGION: us-west-2
+    ECR_REPO_NAME: currency-converter
+
+phases:
+
+  pre_build:
+    commands:
+      - echo "Logging in to ECR..."
+      - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com
+      - IMAGE_TAG=$CODEBUILD_BUILD_NUMBER
+      - ECR_REPO_URI=$AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$ECR_REPO_NAME
+      - echo "Image tag is $IMAGE_TAG"
+      - echo "ECR URI is $ECR_REPO_URI"
+
+  build:
+    commands:
+      - echo "Building Docker image..."
+      - docker build -t $ECR_REPO_URI:$IMAGE_TAG .
+      - docker tag $ECR_REPO_URI:$IMAGE_TAG $ECR_REPO_URI:latest
+
+  post_build:
+    commands:
+      - echo "Pushing Docker image to ECR..."
+      - docker push $ECR_REPO_URI:$IMAGE_TAG
+      - docker push $ECR_REPO_URI:latest
+      - echo "Generating Dockerrun.aws.json..."
+      - |
+        python3 -c "
+        import json
+        config = {
+            'AWSEBDockerrunVersion': '1',
+            'Image': {
+                'Name': '$ECR_REPO_URI:$IMAGE_TAG',
+                'Update': 'true'
+            },
+            'Ports': [
+                {
+                    'ContainerPort': 8080,
+                    'HostPort': 80
+                }
+            ]
+        }
+        with open('Dockerrun.aws.json', 'w') as f:
+            json.dump(config, f, indent=2)
+        "
+      - echo "Dockerrun.aws.json generated:"
+      - cat Dockerrun.aws.json
+
+artifacts:
+  files:
+    - Dockerrun.aws.json
+  name: AppDockerArtifact

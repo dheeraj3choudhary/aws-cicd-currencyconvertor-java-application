@@ -1,0 +1,24 @@
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+.vscode/
+*.iml
+
+# Maven
+target/
+*.class
+*.jar
+*.war
+
+# Spring Boot
+*.log
+spring-shell.log
+
+# Docker
+*.env
+
+# Secrets — never commit
+application-local.properties
