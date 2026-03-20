@@ -37,42 +37,6 @@ Application repository for the Currency Converter portfolio project. Contains th
 
 ---
 
-## Architecture Overview
-
-```
-                        ┌─────────────────────────────────────────┐
-                        │         currency-application repo        │
-                        │     (this repo — push triggers pipeline) │
-                        └───────────────┬─────────────────────────┘
-                                        │ push to master
-                                        ▼
-                        ┌─────────────────────────────────────────┐
-                        │       EventBridge Rule                   │
-                        │  detects CodeCommit push → triggers      │
-                        │  currency-converter-app-pipeline         │
-                        └───────────────┬─────────────────────────┘
-                                        │
-              ┌─────────────────────────┼──────────────────────────┐
-              │                         │                          │
-              ▼                         ▼                          ▼
-  ┌─────────────────┐      ┌─────────────────────┐    ┌─────────────────────┐
-  │  BuildAndTest   │ ───► │   DockerAndPush      │───►│  Deploy             │
-  │  CodeBuild      │      │   CodeBuild          │    │  Elastic Beanstalk  │
-  │  mvn test       │      │   docker build       │    │  Docker environment │
-  │  mvn package    │      │   ECR push           │    │                     │
-  └─────────────────┘      │   Dockerrun.aws.json │    └─────────────────────┘
-                           └─────────────────────┘
-                                        │
-                                        ▼
-                           ┌─────────────────────┐
-                           │  ECR Repository      │
-                           │  currency-converter  │
-                           │  :build-number tag   │
-                           └─────────────────────┘
-```
-
----
-
 ## Repository Structure
 
 ```
