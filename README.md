@@ -3,6 +3,9 @@
 # Currency Convertor Application Pipeline
 Application repository for the Currency Converter portfolio project. Contains the Java Spring Boot application, Dockerfile, and pipeline buildspecs. The companion infrastructure repository is [currency-converter-infra](https://github.com/dheeraj3choudhary/aws-cicd-currencyconvertor-java-infra/tree/main).
 
+<img width="4000" height="2250" alt="AWS_CICD_Series (2)" src="https://github.com/user-attachments/assets/0b198d95-3e1e-466a-bee9-0f99189d4202" />
+
+
 [![Java](https://img.shields.io/badge/Java-ED8B00?style=for-the-badge&logo=openjdk&logoColor=white)](https://openjdk.org/)
 [![Spring Boot](https://img.shields.io/badge/Spring%20Boot-6DB33F?style=for-the-badge&logo=springboot&logoColor=white)](https://spring.io/projects/spring-boot)
 [![Maven](https://img.shields.io/badge/Maven-C71A36?style=for-the-badge&logo=apachemaven&logoColor=white)](https://maven.apache.org/)
